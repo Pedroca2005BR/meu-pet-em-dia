@@ -4,6 +4,7 @@ import cors from 'cors';
 import path from 'node:path';
 import { adminRouter } from './presentation/routes/admin';
 import { authRouter } from './presentation/routes/auth';
+import { petsRouter } from './presentation/routes/pets';
 
 const app = express();
 app.use(cors());
@@ -28,6 +29,8 @@ app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')));
 app.use('/admin', adminRouter);
 // rotas públicas de auth
 app.use('/auth', authRouter);
+// rotas autenticadas de pets (Tutor)
+app.use('/pets', petsRouter);
 
 // health check
 app.get('/health', (_req, res) => res.json({ ok: true }));

@@ -8,13 +8,18 @@ export function Navbar() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-  if (!user) return null;
+  // Rotas públicas onde a navbar não deve aparecer
+  const publicRoutes = ['/login', '/register'];
+  const isPublicRoute = publicRoutes.includes(location.pathname);
+
+  if (!user || isPublicRoute) return null;
 
   const navLinks = [
     { path: '/', label: 'Dashboard', icon: '🏠' },
     { path: '/pets', label: 'Meus Pets', icon: '🐾' },
     { path: '/agenda', label: 'Agenda', icon: '📅' },
     { path: '/financeiro', label: 'Financeiro', icon: '💰' },
+    ...(user.role === 'admin' ? [{ path: '/admin/users', label: 'Gerenciar usuários', icon: '🧑‍💼' }] : []),
   ];
 
   return (

@@ -54,17 +54,27 @@ export function AdminUserForm({
 
   const canSubmit = useMemo(() => {
     // validações mínimas no front (backend fará validação completa)
+    const passwordValid = mode === 'edit' 
+      ? (form.password === '' || (form.password.length >= 8 && form.password.length <= 12))
+      : (form.password.length >= 8 && form.password.length <= 12);
+    
     const requiredBase = form.name.trim().length >= 3 && form.name.trim().length <= 100 &&
       form.cpf.trim().length > 0 &&
       form.email.trim().length >= 10 && form.email.trim().length <= 256 &&
       isCompleteBrPhone(form.phone) &&
-      form.password.length >= 8 && form.password.length <= 12;
+      passwordValid;
+    
     if (!requiredBase) return false;
+    
     if (isVet) {
+      // No modo de edição, os arquivos são opcionais (pode manter os existentes)
+      if (mode === 'edit') {
+        return Boolean(form.crmv && form.clinicAddress);
+      }
       return Boolean(form.crmv && form.clinicAddress && form.professionalIdDoc && form.diplomaDoc);
     }
     return true;
-  }, [form, isVet]);
+  }, [form, isVet, mode]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -136,77 +146,131 @@ export function AdminUserForm({
   }, [mode, initial]);
 
   return (
-    <form onSubmit={onSubmit} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 16 }}>
-      {errors.general ? <div style={{ color: '#b91c1c', marginBottom: 8 }}>{errors.general}</div> : null}
-      {successMsg ? <div style={{ color: '#166534', marginBottom: 8 }}>{successMsg}</div> : null}
+    <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {errors.general && (
+        <div style={{
+          padding: '12px 16px',
+          background: 'rgba(255, 107, 107, 0.1)',
+          border: '1px solid var(--error)',
+          borderRadius: 'var(--radius-md)',
+          color: 'var(--error)',
+          fontSize: 'var(--text-sm)',
+        }}>
+          {errors.general}
+        </div>
+      )}
+      {successMsg && (
+        <div style={{
+          padding: '12px 16px',
+          background: 'rgba(107, 207, 127, 0.1)',
+          border: '1px solid var(--success)',
+          borderRadius: 'var(--radius-md)',
+          color: 'var(--success)',
+          fontSize: 'var(--text-sm)',
+        }}>
+          {successMsg}
+        </div>
+      )}
 
-      <label>Nome *</label>
-      <input value={form.name} onChange={(e) => onChange('name', e.target.value)} placeholder="Nome completo" />
-      {errors.name ? <small style={{ color: '#b91c1c' }}>{errors.name}</small> : null}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+        <div>
+          <label>Nome *</label>
+          <input value={form.name} onChange={(e) => onChange('name', e.target.value)} placeholder="Nome completo" required />
+          {errors.name && <small style={{ color: 'var(--error)', fontSize: 'var(--text-xs)' }}>{errors.name}</small>}
+        </div>
 
-      <label>CPF *</label>
-      <input value={form.cpf} onChange={(e) => onChange('cpf', e.target.value)} placeholder="000.000.000-00" />
-      {errors.cpf ? <small style={{ color: '#b91c1c' }}>{errors.cpf}</small> : null}
+        <div>
+          <label>CPF *</label>
+          <input value={form.cpf} onChange={(e) => onChange('cpf', e.target.value)} placeholder="000.000.000-00" required />
+          {errors.cpf && <small style={{ color: 'var(--error)', fontSize: 'var(--text-xs)' }}>{errors.cpf}</small>}
+        </div>
+      </div>
 
-      <label>Tipo *</label>
-      <select value={form.type} onChange={(e) => onChange('type', e.target.value as UserType)}>
-        <option>Tutor</option>
-        <option>Veterinário</option>
-      </select>
-      {errors.type ? <small style={{ color: '#b91c1c' }}>{errors.type}</small> : null}
+      <div>
+        <label>Tipo de Usuário *</label>
+        <select value={form.type} onChange={(e) => onChange('type', e.target.value as UserType)}>
+          <option>Tutor</option>
+          <option>Veterinário</option>
+        </select>
+        {errors.type && <small style={{ color: 'var(--error)', fontSize: 'var(--text-xs)' }}>{errors.type}</small>}
+      </div>
 
-      {isVet ? (
+      {isVet && (
         <>
-          <label>CRMV *</label>
-          <input value={form.crmv} onChange={(e) => onChange('crmv', e.target.value)} placeholder="CRMV" />
-          {errors.crmv ? <small style={{ color: '#b91c1c' }}>{errors.crmv}</small> : null}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+            <div>
+              <label>CRMV *</label>
+              <input value={form.crmv} onChange={(e) => onChange('crmv', e.target.value)} placeholder="CRMV-UF 12345" required />
+              {errors.crmv && <small style={{ color: 'var(--error)', fontSize: 'var(--text-xs)' }}>{errors.crmv}</small>}
+            </div>
 
-          <label>Documento de identidade profissional (CRMV) *</label>
-          <input type="file" onChange={(e) => onChange('professionalIdDoc', e.target.files?.[0] ?? null)} />
-          {errors.professionalIdDoc ? <small style={{ color: '#b91c1c' }}>{errors.professionalIdDoc}</small> : null}
+            <div>
+              <label>Endereço da Clínica *</label>
+              <input value={form.clinicAddress} onChange={(e) => onChange('clinicAddress', e.target.value)} placeholder="Rua, CEP e cidade" required />
+              {errors.clinicAddress && <small style={{ color: 'var(--error)', fontSize: 'var(--text-xs)' }}>{errors.clinicAddress}</small>}
+            </div>
+          </div>
 
-          <label>Diploma/Certificado *</label>
-          <input type="file" onChange={(e) => onChange('diplomaDoc', e.target.files?.[0] ?? null)} />
-          {errors.diplomaDoc ? <small style={{ color: '#b91c1c' }}>{errors.diplomaDoc}</small> : null}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+            <div>
+              <label>Documento de identidade profissional (CRMV) *</label>
+              <input type="file" onChange={(e) => onChange('professionalIdDoc', e.target.files?.[0] ?? null)} required={mode === 'create'} />
+              {errors.professionalIdDoc && <small style={{ color: 'var(--error)', fontSize: 'var(--text-xs)' }}>{errors.professionalIdDoc}</small>}
+            </div>
 
-          <label>E-mail *</label>
-          <input value={form.email} onChange={(e) => onChange('email', e.target.value)} placeholder="email@dominio.com" />
-          {errors.email ? <small style={{ color: '#b91c1c' }}>{errors.email}</small> : null}
-
-          <label>Celular *</label>
-          <input value={form.phone} onChange={(e) => onChange('phone', maskBrPhone(e.target.value))} placeholder="(00) 00000-0000" />
-          {errors.phone ? <small style={{ color: '#b91c1c' }}>{errors.phone}</small> : null}
-
-          <label>Endereço Clínica</label>
-          <input value={form.clinicAddress} onChange={(e) => onChange('clinicAddress', e.target.value)} placeholder="CEP e cidade" />
-          {errors.clinicAddress ? <small style={{ color: '#b91c1c' }}>{errors.clinicAddress}</small> : null}
-        </>
-      ) : (
-        <>
-          <label>E-mail *</label>
-          <input value={form.email} onChange={(e) => onChange('email', e.target.value)} placeholder="email@dominio.com" />
-          {errors.email ? <small style={{ color: '#b91c1c' }}>{errors.email}</small> : null}
-
-          <label>Celular *</label>
-          <input value={form.phone} onChange={(e) => onChange('phone', maskBrPhone(e.target.value))} placeholder="(00) 00000-0000" />
-          {errors.phone ? <small style={{ color: '#b91c1c' }}>{errors.phone}</small> : null}
-
-          <label>Endereço</label>
-          <input value={form.address} onChange={(e) => onChange('address', e.target.value)} placeholder="CEP e cidade" />
-          {errors.address ? <small style={{ color: '#b91c1c' }}>{errors.address}</small> : null}
+            <div>
+              <label>Diploma/Certificado *</label>
+              <input type="file" onChange={(e) => onChange('diplomaDoc', e.target.files?.[0] ?? null)} required={mode === 'create'} />
+              {errors.diplomaDoc && <small style={{ color: 'var(--error)', fontSize: 'var(--text-xs)' }}>{errors.diplomaDoc}</small>}
+            </div>
+          </div>
         </>
       )}
 
-      <label>Senha *</label>
-      <input type="password" value={form.password} onChange={(e) => onChange('password', e.target.value)} placeholder="8 a 12 caracteres" />
-      {errors.password ? <small style={{ color: '#b91c1c' }}>{errors.password}</small> : null}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+        <div>
+          <label>E-mail *</label>
+          <input type="email" value={form.email} onChange={(e) => onChange('email', e.target.value)} placeholder="email@dominio.com" required />
+          {errors.email && <small style={{ color: 'var(--error)', fontSize: 'var(--text-xs)' }}>{errors.email}</small>}
+        </div>
 
-      <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-        <button type="submit" disabled={!canSubmit || submitting}>{submitting ? 'Enviando...' : (mode === 'create' ? 'Cadastrar Usuário' : 'Salvar Alterações')}</button>
+        <div>
+          <label>Celular *</label>
+          <input value={form.phone} onChange={(e) => onChange('phone', maskBrPhone(e.target.value))} placeholder="(00) 00000-0000" required />
+          {errors.phone && <small style={{ color: 'var(--error)', fontSize: 'var(--text-xs)' }}>{errors.phone}</small>}
+        </div>
+      </div>
+
+      {!isVet && (
+        <div>
+          <label>Endereço</label>
+          <input value={form.address} onChange={(e) => onChange('address', e.target.value)} placeholder="Rua, CEP e cidade" />
+          {errors.address && <small style={{ color: 'var(--error)', fontSize: 'var(--text-xs)' }}>{errors.address}</small>}
+        </div>
+      )}
+
+      <div>
+        <label>Senha {mode === 'edit' && '(deixe em branco para manter a atual)'}</label>
+        <input type="password" value={form.password} onChange={(e) => onChange('password', e.target.value)} placeholder="8 a 12 caracteres" required={mode === 'create'} />
+        {errors.password && <small style={{ color: 'var(--error)', fontSize: 'var(--text-xs)' }}>{errors.password}</small>}
+      </div>
+
+      <div style={{ display: 'flex', gap: '12px', marginTop: '8px', flexWrap: 'wrap' }}>
+        <button 
+          type="submit" 
+          disabled={!canSubmit || submitting}
+          style={{ flex: 1, minWidth: '200px' }}
+        >
+          {submitting ? 'Enviando...' : (mode === 'create' ? '✓ Cadastrar Usuário' : '✓ Salvar Alterações')}
+        </button>
         {mode === 'create' ? (
-          <button type="button" className="secondary" onClick={() => window.location.reload()}>Limpar</button>
+          <button type="button" className="secondary" onClick={() => window.location.reload()} style={{ flex: 1, minWidth: '200px' }}>
+            🔄 Limpar Formulário
+          </button>
         ) : (
-          <button type="button" className="secondary" onClick={onCancel}>Cancelar</button>
+          <button type="button" className="secondary" onClick={onCancel} style={{ flex: 1, minWidth: '200px' }}>
+            ✕ Cancelar Edição
+          </button>
         )}
       </div>
     </form>

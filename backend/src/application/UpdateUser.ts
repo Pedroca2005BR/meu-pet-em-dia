@@ -1,4 +1,4 @@
-import { User, UserType } from '../domain/User';
+import { User, UserRole, UserType } from '../domain/User';
 import { UserRepository } from '../infrastructure/repositories/UserRepository';
 import { isValidCPF, isValidEmail, isValidName, isValidPassword, isValidPhoneBr } from './validators';
 import { hashPassword } from './password';
@@ -16,6 +16,7 @@ export type UpdateUserInput = {
   clinicAddress?: string | null;
   professionalIdDocPath?: string | null; // se null explícito, limpa
   diplomaDocPath?: string | null; // se null explícito, limpa
+  role?: UserRole;
 };
 
 export class UpdateUser {
@@ -58,6 +59,11 @@ export class UpdateUser {
     if (input.password !== undefined) {
       if (!isValidPassword(input.password)) errors.password = 'Senha inválida (8-12, com número, especial e maiúscula)';
       else next.passwordHash = hashPassword(input.password);
+    }
+
+    if (input.role !== undefined) {
+      if (!['admin', 'user'].includes(input.role)) errors.role = 'Role inválida';
+      else next.role = input.role;
     }
 
     // Campos específicos do Veterinário

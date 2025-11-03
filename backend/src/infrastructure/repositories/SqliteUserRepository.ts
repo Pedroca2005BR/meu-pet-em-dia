@@ -43,11 +43,22 @@ export class SqliteUserRepository implements UserRepository {
     return row ?? null;
   }
 
-  findAll(filter?: { type?: User['type'] }): User[] {
+  findAll(filter?: { type?: User['type']; q?: string }): User[] {
+    const clauses: string[] = [];
+    const params: unknown[] = [];
     if (filter?.type) {
-      return db.prepare('SELECT * FROM users WHERE type = ? ORDER BY id DESC').all(filter.type) as User[];
+      clauses.push('type = ?');
+      params.push(filter.type);
     }
-    return db.prepare('SELECT * FROM users ORDER BY id DESC').all() as User[];
+    if (filter?.q) {
+      clauses.push('(name LIKE ? OR cpf LIKE ?)');
+      const like = `%${filter.q}%`;
+      params.push(like, like);
+    }
+    const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
+    // Ordenação padrão: alfabética por nome (case-insensitive)
+    const sql = `SELECT * FROM users ${where} ORDER BY name COLLATE NOCASE ASC`;
+    return db.prepare(sql).all(...params) as User[];
   }
 
   update(id: number, user: Partial<Omit<User, 'id' | 'createdAt'>>): User {

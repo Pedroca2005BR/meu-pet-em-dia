@@ -3,11 +3,29 @@ import { AuthProvider, useAuth } from '@app/providers/AuthProvider';
 import { LoginForm } from '@app/components/LoginForm';
 import { RegisterForm } from '@app/components/RegisterForm';
 import { Navbar } from '@app/components/Navbar';
+import { AdminUsersPage } from '@app/components/AdminUsersPage';
+import { PetsPage } from '@app/components/PetsPage';
 
 function Protected({ children }: { children: JSX.Element }) {
   const { user } = useAuth();
   const location = useLocation();
   if (!user) return <Navigate to="/login" replace state={{ from: location }} />;
+  return children;
+}
+
+function AdminOnly({ children }: { children: JSX.Element }) {
+  const { user } = useAuth();
+  const location = useLocation();
+  if (!user) return <Navigate to="/login" replace state={{ from: location }} />;
+  if (user.role !== 'admin') return <Navigate to="/" replace />;
+  return children;
+}
+
+function TutorOnly({ children }: { children: JSX.Element }) {
+  const { user } = useAuth();
+  const location = useLocation();
+  if (!user) return <Navigate to="/login" replace state={{ from: location }} />;
+  if (user.type !== 'Tutor') return <Navigate to="/" replace />;
   return children;
 }
 
@@ -197,9 +215,10 @@ export function RootRouter() {
           <Route path="/" element={<Protected><Dashboard /></Protected>} />
           <Route path="/login" element={<LoginForm />} />
           <Route path="/register" element={<RegisterForm />} />
-          <Route path="/pets" element={<Protected><div style={{ padding: '32px', textAlign: 'center' }}>Em desenvolvimento...</div></Protected>} />
+          <Route path="/pets" element={<TutorOnly><PetsPage /></TutorOnly>} />
           <Route path="/agenda" element={<Protected><div style={{ padding: '32px', textAlign: 'center' }}>Em desenvolvimento...</div></Protected>} />
           <Route path="/financeiro" element={<Protected><div style={{ padding: '32px', textAlign: 'center' }}>Em desenvolvimento...</div></Protected>} />
+          <Route path="/admin/users" element={<AdminOnly><AdminUsersPage /></AdminOnly>} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </BrowserRouter>

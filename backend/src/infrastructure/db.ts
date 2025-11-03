@@ -30,6 +30,25 @@ db.exec(`
     createdAt TEXT NOT NULL DEFAULT (DATETIME('now'))
   );
   CREATE INDEX IF NOT EXISTS idx_users_cpf ON users(cpf);
+  
+  -- Pets
+  CREATE TABLE IF NOT EXISTS pets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ownerId INTEGER NOT NULL,
+    name TEXT NOT NULL,
+    species TEXT NOT NULL CHECK (species IN ('Cachorro','Cavalo','Gato','Outros')),
+    breed TEXT,
+    sex TEXT CHECK (sex IN ('Macho','Fêmea','Irrelevante')),
+    age INTEGER,
+    weight REAL,
+    height REAL,
+    notes TEXT,
+    photoPath TEXT,
+    createdAt TEXT NOT NULL DEFAULT (DATETIME('now')),
+    FOREIGN KEY(ownerId) REFERENCES users(id) ON DELETE CASCADE
+  );
+  CREATE INDEX IF NOT EXISTS idx_pets_owner ON pets(ownerId);
+  CREATE INDEX IF NOT EXISTS idx_pets_created ON pets(createdAt DESC);
 `);
 
 

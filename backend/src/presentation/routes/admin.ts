@@ -58,6 +58,7 @@ adminRouter.post(
         clinicAddress: req.body.clinicAddress ? String(req.body.clinicAddress) : null,
         professionalIdDocPath: files?.professionalIdDoc?.[0]?.filename ? `/uploads/${files.professionalIdDoc[0].filename}` : null,
         diplomaDocPath: files?.diplomaDoc?.[0]?.filename ? `/uploads/${files.diplomaDoc[0].filename}` : null,
+        role: req.body.role === 'admin' ? 'admin' : 'user',
       });
       // Remover hash da resposta
       const { passwordHash, ...safe } = created as any;
@@ -70,12 +71,13 @@ adminRouter.post(
   }
 );
 
-// Listar usuários
+// Listar usuários com filtros (RFS04)
 adminRouter.get('/users', (req, res) => {
   try {
     const repo = new SqliteUserRepository();
     const type = req.query.type === 'Veterinário' ? 'Veterinário' : (req.query.type === 'Tutor' ? 'Tutor' : undefined);
-    const users = repo.findAll(type ? { type } : undefined).map((u) => {
+    const q = typeof req.query.q === 'string' && req.query.q.trim() ? req.query.q.trim() : undefined;
+    const users = repo.findAll({ type, q }).map((u) => {
       const { passwordHash, ...safe } = u as any;
       return safe;
     });
