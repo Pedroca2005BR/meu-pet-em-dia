@@ -234,6 +234,7 @@ export function AdminUserList({ onEdit, onRefresh }: { onEdit: (u: User) => void
                   <td style={{ padding: '16px', textAlign: 'center' }}>
                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                       <button 
+                        data-testid={`admin-edit-${u.id}`}
                         onClick={() => onEdit(u)}
                         style={{
                           padding: '8px 16px',
@@ -244,6 +245,7 @@ export function AdminUserList({ onEdit, onRefresh }: { onEdit: (u: User) => void
                         ✏️ Editar
                       </button>
                       <button 
+                        data-testid={`admin-delete-${u.id}`}
                         className="danger"
                         onClick={() => onDelete(u.id)}
                         style={{

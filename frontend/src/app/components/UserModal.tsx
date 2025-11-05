@@ -47,6 +47,7 @@ export function UserModal({ isOpen, onClose, mode, initial, onSaved }: UserModal
       }}
     >
       <div
+        data-testid="admin-user-modal"
         ref={modalRef}
         style={{
           background: 'var(--surface)',

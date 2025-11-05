@@ -81,6 +81,7 @@ export function AdminUsersPage() {
           </div>
 
           <button
+            data-testid="btn-open-admin-user-modal"
             onClick={handleOpenCreate}
             style={{
               display: 'flex',

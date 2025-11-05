@@ -85,7 +85,7 @@ export function PetList({ onEdit, onRefresh }: { onEdit: (p: Pet) => void; onRef
                 <tr key={p.id} style={{ borderBottom: '1px solid var(--border)', background: idx % 2 === 0 ? 'var(--surface)' : 'var(--background)' }}>
                   <td style={{ padding: 12 }}>
                     {p.photoPath ? (
-                      <img src={p.photoPath} alt={p.name} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--border)' }} />
+                      <img src={p.photoPath.startsWith('http') ? p.photoPath : `${API_BASE_URL}${p.photoPath}`} alt={p.name} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 8, border: '1px solid var(--border)' }} />
                     ) : (
                       <div style={{ width: 48, height: 48, borderRadius: 8, background: 'var(--background)', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border)' }}>🐶</div>
                     )}
@@ -97,8 +97,8 @@ export function PetList({ onEdit, onRefresh }: { onEdit: (p: Pet) => void; onRef
                   <td style={{ padding: 12 }}>{p.age != null ? `${p.age} ano(s)` : '-'}</td>
                   <td style={{ padding: 12, textAlign: 'center' }}>
                     <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
-                      <button onClick={() => onEdit(p)} style={{ padding: '8px 16px', fontSize: 'var(--text-xs)' }}>✏️ Editar</button>
-                      <button className="danger" onClick={() => onDelete(p.id)} style={{ padding: '8px 16px', fontSize: 'var(--text-xs)' }}>🗑️ Excluir</button>
+                      <button data-testid={`pet-edit-${p.id}`} onClick={() => onEdit(p)} style={{ padding: '8px 16px', fontSize: 'var(--text-xs)' }}>✏️ Editar</button>
+                      <button data-testid={`pet-delete-${p.id}`} className="danger" onClick={() => onDelete(p.id)} style={{ padding: '8px 16px', fontSize: 'var(--text-xs)' }}>🗑️ Excluir</button>
                     </div>
                   </td>
                 </tr>

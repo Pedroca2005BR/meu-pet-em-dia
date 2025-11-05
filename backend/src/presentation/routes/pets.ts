@@ -12,15 +12,40 @@ import { ListPets } from '../../application/pets/ListPets';
 const uploadsDir = path.resolve(process.cwd(), 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
+const allowedMimes = new Set([
+  'image/png',
+  'image/jpeg',
+  'image/jpg',
+  'image/webp',
+  'image/gif',
+]);
+
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => cb(null, uploadsDir),
   filename: (_req, file, cb) => {
     const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname) || '.jpg';
+    let ext = path.extname(file.originalname);
+    if (!ext) {
+      switch (file.mimetype) {
+        case 'image/png': ext = '.png'; break;
+        case 'image/jpeg':
+        case 'image/jpg': ext = '.jpg'; break;
+        case 'image/webp': ext = '.webp'; break;
+        case 'image/gif': ext = '.gif'; break;
+        default: ext = '.png';
+      }
+    }
     cb(null, `pet-${unique}${ext}`);
   },
 });
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  fileFilter: (_req, file, cb) => {
+    if (allowedMimes.has(file.mimetype)) return cb(null, true);
+    cb(new Error('Tipo de arquivo não suportado'));
+  },
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+});
 
 export const petsRouter = Router();
 

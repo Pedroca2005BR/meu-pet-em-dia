@@ -124,12 +124,12 @@ export function PetForm({
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
         <div>
           <label>Nome *</label>
-          <input value={form.name} onChange={(e) => onChange('name', e.target.value)} placeholder="Nome do pet" required />
+          <input data-testid="pet-name" value={form.name} onChange={(e) => onChange('name', e.target.value)} placeholder="Nome do pet" required />
           {errors.name && <small style={{ color: 'var(--error)' }}>{errors.name}</small>}
         </div>
         <div>
           <label>Espécie *</label>
-          <select value={form.species} onChange={(e) => onChange('species', e.target.value as PetSpecies)}>
+          <select data-testid="pet-species" value={form.species} onChange={(e) => onChange('species', e.target.value as PetSpecies)}>
             <option>Cachorro</option>
             <option>Cavalo</option>
             <option>Gato</option>
@@ -174,7 +174,7 @@ export function PetForm({
       </div>
 
       <div style={{ display: 'flex', gap: '12px', marginTop: 8, flexWrap: 'wrap' }}>
-        <button type="submit" disabled={!canSubmit || submitting} style={{ flex: 1, minWidth: 200 }}>
+        <button data-testid="pet-submit" type="submit" disabled={!canSubmit || submitting} style={{ flex: 1, minWidth: 200 }}>
           {submitting ? 'Enviando...' : (mode === 'create' ? '✓ Cadastrar Pet' : '✓ Salvar Alterações')}
         </button>
         <button type="button" className="secondary" onClick={onCancel} style={{ flex: 1, minWidth: 200 }}>
