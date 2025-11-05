@@ -175,13 +175,13 @@ export function AdminUserForm({
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
         <div>
           <label>Nome *</label>
-          <input value={form.name} onChange={(e) => onChange('name', e.target.value)} placeholder="Nome completo" required />
+          <input data-testid="admin-user-name" value={form.name} onChange={(e) => onChange('name', e.target.value)} placeholder="Nome completo" required />
           {errors.name && <small style={{ color: 'var(--error)', fontSize: 'var(--text-xs)' }}>{errors.name}</small>}
         </div>
 
         <div>
           <label>CPF *</label>
-          <input value={form.cpf} onChange={(e) => onChange('cpf', e.target.value)} placeholder="000.000.000-00" required />
+          <input data-testid="admin-user-cpf" value={form.cpf} onChange={(e) => onChange('cpf', e.target.value)} placeholder="000.000.000-00" required />
           {errors.cpf && <small style={{ color: 'var(--error)', fontSize: 'var(--text-xs)' }}>{errors.cpf}</small>}
         </div>
       </div>
@@ -230,13 +230,13 @@ export function AdminUserForm({
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
         <div>
           <label>E-mail *</label>
-          <input type="email" value={form.email} onChange={(e) => onChange('email', e.target.value)} placeholder="email@dominio.com" required />
+          <input data-testid="admin-user-email" type="email" value={form.email} onChange={(e) => onChange('email', e.target.value)} placeholder="email@dominio.com" required />
           {errors.email && <small style={{ color: 'var(--error)', fontSize: 'var(--text-xs)' }}>{errors.email}</small>}
         </div>
 
         <div>
           <label>Celular *</label>
-          <input value={form.phone} onChange={(e) => onChange('phone', maskBrPhone(e.target.value))} placeholder="(00) 00000-0000" required />
+          <input data-testid="admin-user-phone" value={form.phone} onChange={(e) => onChange('phone', maskBrPhone(e.target.value))} placeholder="(00) 00000-0000" required />
           {errors.phone && <small style={{ color: 'var(--error)', fontSize: 'var(--text-xs)' }}>{errors.phone}</small>}
         </div>
       </div>
@@ -244,19 +244,20 @@ export function AdminUserForm({
       {!isVet && (
         <div>
           <label>Endereço</label>
-          <input value={form.address} onChange={(e) => onChange('address', e.target.value)} placeholder="Rua, CEP e cidade" />
+          <input data-testid="admin-user-address" value={form.address} onChange={(e) => onChange('address', e.target.value)} placeholder="Rua, CEP e cidade" />
           {errors.address && <small style={{ color: 'var(--error)', fontSize: 'var(--text-xs)' }}>{errors.address}</small>}
         </div>
       )}
 
       <div>
         <label>Senha {mode === 'edit' && '(deixe em branco para manter a atual)'}</label>
-        <input type="password" value={form.password} onChange={(e) => onChange('password', e.target.value)} placeholder="8 a 12 caracteres" required={mode === 'create'} />
+        <input data-testid="admin-user-password" type="password" value={form.password} onChange={(e) => onChange('password', e.target.value)} placeholder="8 a 12 caracteres" required={mode === 'create'} />
         {errors.password && <small style={{ color: 'var(--error)', fontSize: 'var(--text-xs)' }}>{errors.password}</small>}
       </div>
 
       <div style={{ display: 'flex', gap: '12px', marginTop: '8px', flexWrap: 'wrap' }}>
         <button 
+          data-testid="admin-user-submit"
           type="submit" 
           disabled={!canSubmit || submitting}
           style={{ flex: 1, minWidth: '200px' }}

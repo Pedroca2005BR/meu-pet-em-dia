@@ -19,7 +19,7 @@ export function PetsPage() {
               <p style={{ margin: 0, color: 'var(--text-secondary)' }}>Cadastre, edite e gerencie seus pets</p>
             </div>
           </div>
-          <button onClick={() => { setEditing(null); setModalOpen(true); }} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '14px 24px' }}>
+          <button data-testid="btn-open-pet-modal" onClick={() => { setEditing(null); setModalOpen(true); }} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '14px 24px' }}>
             <span style={{ fontSize: 20 }}>➕</span>
             Cadastrar Pet
           </button>

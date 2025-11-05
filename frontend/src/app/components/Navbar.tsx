@@ -57,6 +57,7 @@ export function Navbar() {
             <Link
               key={link.path}
               to={link.path}
+              data-testid={link.path === '/admin/users' ? 'nav-admin-users' : undefined}
               style={{
                 position: 'relative',
                 color: location.pathname === link.path ? 'var(--primary)' : 'var(--text-secondary)',
