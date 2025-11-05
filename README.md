@@ -278,3 +278,79 @@ Este projeto está sob a licença MIT.
 ---
 
 ⭐ Se este projeto foi útil para você, considere dar uma estrela!
+
+---
+
+## Guia Completo: Arquitetura, Docker, Testes (Selenium) e Deploy
+
+### Padrões Arquiteturais
+- Presentation (rotas Express), Application (use cases), Domain (entidades), Infrastructure (repositórios SQLite).
+- Repository Pattern para `User` e `Pet`; SRP/Clean nos casos de uso; middleware `requireAuth`.
+- Validações de entrada com mensagens detalhadas (400) e fallback 500 seguro.
+
+### Banco de Dados e Uploads
+- SQLite (better-sqlite3) para MVP/local e Docker com volumes.
+- Uploads com `multer` em `/uploads` (permitidos: png, jpg/jpeg, webp, gif; até 5MB).
+- Para serverless/backend Vercel, use Postgres gerenciado (Neon/Supabase) ou Turso.
+
+### Frontend
+- React + TS + Vite; Context de Auth; Router; UI responsiva (navbar desktop, bottom‑nav e topbar no mobile).
+- data‑testids em elementos críticos para Selenium.
+
+### Execução Local (PowerShell)
+```powershell
+cd backend; npm install; echo PORT=3001 > .env; echo JWT_SECRET=dev-secret-123 >> .env; echo ADMIN_KEY=changeme >> .env; npm run dev
+cd frontend; npm install; echo VITE_API_URL=http://localhost:3001 > .env.local; npm run dev
+```
+
+Seed admin:
+```powershell
+cd backend; npm run seed:admin
+```
+
+### Docker
+```powershell
+cd C:\meu_pet; docker compose build; docker compose up -d
+# Frontend: http://localhost:8088  |  Backend: http://localhost:3001
+```
+
+Porta ocupada:
+```powershell
+netstat -ano | findstr :8080; taskkill /PID <PID> /F
+```
+
+Rebuild sem cache (frontend em branco):
+```powershell
+docker compose down; docker compose build --no-cache frontend; docker compose up -d
+```
+
+### Testes E2E (Selenium)
+Scripts em `testes/`: `test_register_login.py`, `test_pets_flow.py`, `test_admin_users_flow.py`.
+
+Executar tudo com delay e janela visível:
+```powershell
+cd testes; $env:MEUPET_HEADLESS='0'; $env:MEUPET_E2E_DELAY='1'; .\run.ps1
+```
+
+Individuais:
+```powershell
+cd testes; $env:MEUPET_HEADLESS='0'; $env:MEUPET_E2E_DELAY='1'; python .\test_register_login.py
+cd testes; $env:MEUPET_HEADLESS='0'; $env:MEUPET_E2E_DELAY='1'; python .\test_pets_flow.py
+cd testes; $env:MEUPET_HEADLESS='0'; $env:MEUPET_E2E_DELAY='1'; python .\test_admin_users_flow.py
+```
+
+### Deploy do Frontend na Vercel
+- Root: `frontend`; Build: `npm run build`; Output: `dist`.
+- Variáveis: `VITE_API_URL=https://sua-api-publica`.
+- SPA fallback opcional: `frontend/vercel.json` com rota para `index.html`.
+
+### Git – Branch e Commit usados
+```powershell
+cd C:\meu_pet; git fetch; git switch -c release-1; git push -u origin release-1
+cd C:\meu_pet; git add .; git commit -m "chore: prepara release-1"; git push -u origin release-1
+```
+
+### Troubleshooting Rápido
+- Docker Desktop parado: abra o app e rode `docker version`.
+- Erro de porta: use `netstat` e `taskkill` acima.
+- Selenium sem janela: `MEUPET_HEADLESS='0'`; para ritmo mais lento: `MEUPET_E2E_DELAY='1'`.
